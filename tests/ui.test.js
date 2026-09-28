@@ -43,6 +43,25 @@ test('hidden tab panels are removed from layout', async () => {
   assert.match(css, /\[hidden\]\s*\{\s*display:\s*none\s*!important/);
 });
 
+test('desktop uses a viewport-locked shell while mobile keeps document scrolling', async () => {
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /body\s*\{[^}]*height:\s*100(?:d)?vh[^}]*overflow:\s*hidden/s);
+  assert.match(css, /\.game-shell\s*\{[^}]*min-height:\s*0[^}]*overflow:\s*hidden/s);
+  assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?body\s*\{[^}]*height:\s*auto[^}]*overflow-y:\s*auto/s);
+});
+
+test('mobile page exposes a fixed quick navigator for battle, build, and stats', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(html, /class="mobile-view-switcher"[^>]*aria-label="移动端快捷导航"/);
+  for (const target of ['#battlefield', '#build-panel', '#stats-panel']) {
+    assert.ok(html.includes(`data-mobile-target="${target}"`));
+  }
+  assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?\.mobile-view-switcher\s*\{[^}]*position:\s*fixed/s);
+});
+
 test('controller preserves focused list controls and safely resumes background progress', async () => {
   const source = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
 

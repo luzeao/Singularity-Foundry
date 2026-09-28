@@ -37,7 +37,7 @@
     </section>
 
     <main class="game-shell">
-      <aside class="panel stats-panel" aria-labelledby="stats-title">
+      <aside id="stats-panel" class="panel stats-panel" aria-labelledby="stats-title">
         <div class="panel-heading">
           <div><span class="eyebrow">熔炉遥测</span><h2 id="stats-title">核心属性</h2></div>
           <span id="build-label" class="build-chip">未定型</span>
@@ -60,7 +60,7 @@
         </section>
       </aside>
 
-      <section class="battlefield" aria-labelledby="enemy-name">
+      <section id="battlefield" class="battlefield" aria-labelledby="enemy-name">
         <div class="battle-meta">
           <span id="node-label">NODE 01 / 10</span>
           <span id="enemy-timer">交战 0.0s</span>
@@ -85,7 +85,7 @@
         <div class="skill-dock" id="skill-dock" aria-label="快捷技能"></div>
       </section>
 
-      <aside class="panel build-panel" aria-labelledby="build-title">
+      <aside id="build-panel" class="panel build-panel" aria-labelledby="build-title">
         <div class="panel-heading build-heading">
           <div><span class="eyebrow">构筑控制</span><h2 id="build-title">熔炉协议</h2></div>
           <div class="buy-selector" aria-label="购买数量">
@@ -126,6 +126,12 @@
       <span>未经著作权人书面许可，不得收费分发、广告变现或用于其他直接或间接盈利；违规者将被依法追究法律责任。</span>
       <small>版权所有 © 2026 luzeao · 保留所有权利</small>
     </aside>
+
+    <nav class="mobile-view-switcher" aria-label="移动端快捷导航">
+      <button type="button" data-mobile-target="#battlefield" aria-current="true">战斗</button>
+      <button type="button" data-mobile-target="#build-panel">构筑</button>
+      <button type="button" data-mobile-target="#stats-panel">属性</button>
+    </nav>
 
     <dialog id="reforge-dialog">
       <form method="dialog" class="dialog-card">

@@ -14,6 +14,7 @@ function createElement() {
     setAttribute() {}, contains(node) { return node === this; },
     closest(selector) { return selector === 'button' ? this : null; },
     showModal() {},
+    scrollIntoView() { this.scrollCount = (this.scrollCount ?? 0) + 1; },
   };
 }
 
@@ -27,7 +28,7 @@ test('focused action lists refresh immediately after their user action', async (
     '#stat-attack', '#stat-speed', '#stat-crit', '#stat-crit-damage', '#stat-skill', '#stat-resource',
     '#breakdown-list', '#automation-card', '#auto-buy-toggle', '#highest-node', '#kill-count',
     '#damage-count', '#reforge-preview', '#reforge-hint', '#reforge-button', '#reforge-dialog',
-    '#dialog-gain', '#confirm-reforge', '#event-log', '#log-count',
+    '#dialog-gain', '#confirm-reforge', '#event-log', '#log-count', '#battlefield', '#build-panel', '#stats-panel',
   ];
   for (const selector of selectors) elements.set(selector, createElement());
 
@@ -92,6 +93,12 @@ test('focused action lists refresh immediately after their user action', async (
     assert.match(elements.get('#module-list').innerHTML, /class="action-card equipped"/);
     assert.match(elements.get('#module-list').innerHTML, />卸下</);
     assert.equal(elements.get('#module-count').textContent, '1/2');
+
+    const mobileBuildButton = createElement();
+    mobileBuildButton.dataset.mobileTarget = '#build-panel';
+    documentListeners.get('click')({ target: mobileBuildButton });
+
+    assert.equal(elements.get('#build-panel').scrollCount, 1);
   } finally {
     Math.random = originalRandom;
     delete globalThis.document;

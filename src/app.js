@@ -249,6 +249,16 @@ document.addEventListener('click', (event) => {
   let forceUpgrades = false;
   let forceSkills = false;
   let forceModules = false;
+  if (button.dataset.mobileTarget) {
+    const target = $(button.dataset.mobileTarget);
+    const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    // The mobile dock keeps primary areas one tap away without changing the desktop three-column workspace.
+    target?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    document.querySelectorAll('[data-mobile-target]').forEach((item) => {
+      if (item === button) item.setAttribute('aria-current', 'true');
+      else item.removeAttribute('aria-current');
+    });
+  }
   if (button.dataset.manualAttack !== undefined) {
     flashEvents(manualAttack(state, [Math.random(), Math.random()]).events);
   }
