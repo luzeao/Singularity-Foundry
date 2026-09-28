@@ -62,6 +62,19 @@ test('mobile page exposes a fixed quick navigator for battle, build, and stats',
   assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?\.mobile-view-switcher\s*\{[^}]*position:\s*fixed/s);
 });
 
+test('touch controls prevent double-tap side effects and respect mobile safe areas', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(html, /name="viewport" content="[^"]*viewport-fit=cover/);
+  assert.doesNotMatch(html, /user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+  assert.match(css, /button[^\{]*\{[^}]*touch-action:\s*manipulation[^}]*user-select:\s*none/s);
+  assert.match(css, /-webkit-touch-callout:\s*none/);
+  assert.match(css, /overscroll-behavior-y:\s*none/);
+  assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?button[^\{]*\{[^}]*min-height:\s*44px/s);
+  assert.match(css, /padding-bottom:\s*calc\([^)]*env\(safe-area-inset-bottom\)/);
+});
+
 test('controller preserves focused list controls and safely resumes background progress', async () => {
   const source = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
 
