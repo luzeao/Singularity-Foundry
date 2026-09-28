@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#09080d">
+    <meta name="description" content="构筑、重铸并自动化一台能够突破宇宙法则的增长引擎。">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2309080d'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%23b79aff' stroke-width='4'/%3E%3Cpath d='M32 10 38 26 54 32 38 38 32 54 26 38 10 32 26 26Z' fill='%23ffc66d'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23fff'%3E%3C/circle%3E%3C/svg%3E">
+    <title>奇点熔炉 · Singularity Foundry</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="space-noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">SF</span>
+        <div>
+          <strong>奇点熔炉</strong>
+          <span>Singularity Foundry</span>
+        </div>
+      </div>
+      <div class="resource-strip" aria-label="核心资源">
+        <div><span>熵晶</span><strong id="entropy-value">0</strong></div>
+        <div><span>炉心碎片</span><strong id="core-value">0</strong></div>
+        <div><span>本轮</span><strong id="run-time">00:00</strong></div>
+      </div>
+      <div class="system-state"><span class="signal-dot" aria-hidden="true"></span><span id="save-state">熔炉在线</span></div>
+    </header>
+
+    <section class="mission-bar" aria-live="polite">
+      <div>
+        <span class="eyebrow">当前目标</span>
+        <strong id="next-goal">摧毁第一个物质节点</strong>
+      </div>
+      <div class="mission-progress"><span id="mission-progress"></span></div>
+      <span id="region-label">区域 01 · 物质层</span>
+    </section>
+
+    <main class="game-shell">
+      <aside class="panel stats-panel" aria-labelledby="stats-title">
+        <div class="panel-heading">
+          <div><span class="eyebrow">熔炉遥测</span><h2 id="stats-title">核心属性</h2></div>
+          <span id="build-label" class="build-chip">未定型</span>
+        </div>
+        <dl class="stat-grid">
+          <div><dt>攻击力</dt><dd id="stat-attack">1</dd></div>
+          <div><dt>攻击速度</dt><dd id="stat-speed">1/s</dd></div>
+          <div><dt>暴击率</dt><dd id="stat-crit">5%</dd></div>
+          <div><dt>暴击伤害</dt><dd id="stat-crit-damage">200%</dd></div>
+          <div><dt>技能倍率</dt><dd id="stat-skill">×1</dd></div>
+          <div><dt>资源倍率</dt><dd id="stat-resource">×1</dd></div>
+        </dl>
+        <section class="breakdown" aria-labelledby="breakdown-title">
+          <div class="section-title"><h3 id="breakdown-title">倍率解析</h3><span>实时</span></div>
+          <div id="breakdown-list" class="breakdown-list"></div>
+        </section>
+        <section class="automation-card" id="automation-card" hidden>
+          <div><span class="eyebrow">自动化</span><strong>升级采购协议</strong></div>
+          <label class="switch"><input id="auto-buy-toggle" type="checkbox"><span></span>自动购买最低价升级</label>
+        </section>
+      </aside>
+
+      <section class="battlefield" aria-labelledby="enemy-name">
+        <div class="battle-meta">
+          <span id="node-label">NODE 01 / 10</span>
+          <span id="enemy-timer">交战 0.0s</span>
+        </div>
+        <button id="forge-visual" class="forge-visual" type="button" data-manual-attack aria-label="发射主动脉冲攻击当前法则节点">
+          <div class="orbit orbit-outer"><i></i><i></i><i></i></div>
+          <div class="orbit orbit-inner"><i></i><i></i></div>
+          <div class="forge-core"><span></span></div>
+          <div class="target-reticle"></div>
+          <span class="manual-attack-hint">点击发射主动脉冲</span>
+        </button>
+        <div class="enemy-readout">
+          <span id="enemy-type" class="eyebrow">法则节点</span>
+          <h1 id="enemy-name">物质节点</h1>
+          <div class="health-row"><strong id="enemy-health">8 / 8</strong><span id="enemy-percent">100%</span></div>
+          <div class="health-track" role="progressbar" aria-label="敌人生命值" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+            <span id="health-fill"></span>
+          </div>
+          <p id="boss-rule" class="boss-rule" hidden></p>
+        </div>
+        <div id="combat-callout" class="combat-callout" aria-live="polite">自动脉冲已启动</div>
+        <div class="skill-dock" id="skill-dock" aria-label="快捷技能"></div>
+      </section>
+
+      <aside class="panel build-panel" aria-labelledby="build-title">
+        <div class="panel-heading build-heading">
+          <div><span class="eyebrow">构筑控制</span><h2 id="build-title">熔炉协议</h2></div>
+          <div class="buy-selector" aria-label="购买数量">
+            <button type="button" data-buy-amount="1" class="active">×1</button>
+            <button type="button" data-buy-amount="10">×10</button>
+            <button type="button" data-buy-amount="max">MAX</button>
+          </div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="构筑页面">
+          <button type="button" role="tab" aria-selected="true" data-tab="upgrades">升级</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="skills">技能</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="modules">模块 <span id="module-count">0/2</span></button>
+        </div>
+        <section id="upgrade-list" class="card-list" role="tabpanel"></section>
+        <section id="skill-list" class="card-list" role="tabpanel" hidden></section>
+        <section id="module-list" class="card-list" role="tabpanel" hidden></section>
+      </aside>
+    </main>
+
+    <footer class="lower-deck">
+      <section class="run-summary">
+        <div><span>最高进度</span><strong id="highest-node">01</strong></div>
+        <div><span>本轮击杀</span><strong id="kill-count">0</strong></div>
+        <div><span>总伤害</span><strong id="damage-count">0</strong></div>
+      </section>
+      <section class="reforge-panel">
+        <div><span class="eyebrow">PRESTIGE // 重铸</span><strong id="reforge-preview">预计获得 0 炉心碎片</strong><small id="reforge-hint">推进至区域 2 后开始积累</small></div>
+        <button id="reforge-button" type="button" disabled>启动重铸</button>
+      </section>
+      <details class="event-log">
+        <summary>熔炉日志 <span id="log-count">1</span></summary>
+        <ol id="event-log"></ol>
+      </details>
+    </footer>
+
+    <dialog id="reforge-dialog">
+      <form method="dialog" class="dialog-card">
+        <span class="eyebrow">不可逆状态迁移</span>
+        <h2>确认重铸熔炉？</h2>
+        <p>熵晶、普通升级和区域进度将被重置。技能、模块、炉心碎片与永久解锁会保留。</p>
+        <div class="dialog-gain"><span>本次获得</span><strong id="dialog-gain">0 炉心碎片</strong></div>
+        <div class="dialog-actions">
+          <button value="cancel" class="secondary">继续本轮</button>
+          <button value="confirm" id="confirm-reforge">确认重铸</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
