@@ -28,6 +28,15 @@ test('page metadata and embedded favicon identify Singularity Foundry', async ()
   assert.ok(html.includes('data:image/svg+xml'));
 });
 
+test('page exposes the noncommercial use restriction to every player', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+
+  assert.match(html, /class="copyright-notice"[^>]*role="note"/);
+  assert.ok(html.includes('禁止转售'));
+  assert.ok(html.includes('禁止任何形式的私人盈利'));
+  assert.ok(html.includes('依法追究法律责任'));
+});
+
 test('hidden tab panels are removed from layout', async () => {
   const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
 
