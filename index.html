@@ -22,6 +22,7 @@
       <div class="resource-strip" aria-label="核心资源">
         <div><span>熵晶</span><strong id="entropy-value">0</strong></div>
         <div><span>炉心碎片</span><strong id="core-value">0</strong></div>
+        <div><span>研究点</span><strong id="research-value">0</strong></div>
         <div><span>本轮</span><strong id="run-time">00:00</strong></div>
       </div>
       <div class="system-state"><span class="signal-dot" aria-hidden="true"></span><span id="save-state">熔炉在线</span></div>
@@ -35,6 +36,11 @@
       <div class="mission-progress"><span id="mission-progress"></span></div>
       <span id="region-label">区域 01 · 物质层</span>
     </section>
+
+    <aside id="offline-summary" class="return-summary" role="status" hidden>
+      <div><strong>熔炉仍在运转 · 欢迎回来</strong><span id="offline-message"></span></div>
+      <button type="button" data-dismiss-offline>收下收益</button>
+    </aside>
 
     <main class="game-shell">
       <aside id="stats-panel" class="panel stats-panel" aria-labelledby="stats-title">
@@ -54,9 +60,22 @@
           <div class="section-title"><h3 id="breakdown-title">倍率解析</h3><span>实时</span></div>
           <div id="breakdown-list" class="breakdown-list"></div>
         </section>
+        <section id="journey-goals" class="journey-goals" aria-label="眼前、本轮与长期目标"></section>
         <section class="automation-card" id="automation-card" hidden>
-          <div><span class="eyebrow">自动化</span><strong>升级采购协议</strong></div>
-          <label class="switch"><input id="auto-buy-toggle" type="checkbox"><span></span>自动购买最低价升级</label>
+          <div><span class="eyebrow">自动化</span><strong>熔炉执行协议</strong></div>
+          <label class="switch" id="auto-buy-control"><input id="auto-buy-toggle" type="checkbox"><span></span>自动购买最低价升级</label>
+          <label id="auto-buy-priority-control">购买策略
+            <select id="auto-buy-priority">
+              <option value="cheapest">最低价格</option>
+              <option value="damage">伤害优先</option>
+              <option value="economy">经济优先</option>
+            </select>
+          </label>
+          <label class="switch" id="auto-skills-control"><input id="auto-skills-toggle" type="checkbox"><span></span>自动释放可用技能</label>
+          <div id="preset-control" class="preset-control" hidden>
+            <button type="button" data-save-preset="0">保存构筑</button>
+            <button type="button" data-load-preset="0">载入构筑</button>
+          </div>
         </section>
       </aside>
 
@@ -72,6 +91,10 @@
           <div class="target-reticle"></div>
           <span class="manual-attack-hint">点击发射主动脉冲</span>
         </button>
+        <div id="overdrive-meter" class="overdrive-meter" role="progressbar" aria-label="熔炉超载能量" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div><span>熔炉超载</span><strong id="overdrive-label">0%</strong></div>
+          <div class="overdrive-track"><span id="overdrive-fill"></span></div>
+        </div>
         <div class="enemy-readout">
           <span id="enemy-type" class="eyebrow">法则节点</span>
           <h1 id="enemy-name">物质节点</h1>
@@ -81,8 +104,24 @@
           </div>
           <p id="boss-rule" class="boss-rule" hidden></p>
         </div>
-        <div id="combat-callout" class="combat-callout" aria-live="polite">自动脉冲已启动</div>
+        <div id="combat-callout" class="combat-callout" aria-live="polite">点击核心发射主动脉冲</div>
+        <div id="automation-goal" class="automation-goal">脉冲无人机 · 深度 1/12</div>
+        <button id="expedition-notice" class="expedition-notice" type="button" data-open-tab="exploration" hidden>发现途中补给 · 点击选择</button>
         <div class="skill-dock" id="skill-dock" aria-label="快捷技能"></div>
+        <section id="guardian-decision" class="guardian-decision" aria-labelledby="decision-title" hidden>
+          <div class="decision-card">
+            <span class="eyebrow">守卫已击破 // 自主结算</span>
+            <h2 id="decision-title">选择下一段法则，或带走炉心</h2>
+            <div id="decision-summary" class="decision-summary"></div>
+            <p>下一段流派（须装备对应模块生效）</p>
+            <div id="decision-builds" class="decision-builds" aria-label="守卫结算时切换专精"></div>
+            <div id="law-choices" class="law-choices" role="radiogroup" aria-label="区段法则"></div>
+            <div class="decision-actions">
+              <button id="decision-reforge" type="button" class="secondary">立即重铸</button>
+              <button id="continue-dive" type="button" disabled>继续深潜</button>
+            </div>
+          </div>
+        </section>
       </section>
 
       <aside id="build-panel" class="panel build-panel" aria-labelledby="build-title">
@@ -98,10 +137,16 @@
           <button type="button" role="tab" aria-selected="true" data-tab="upgrades">升级</button>
           <button type="button" role="tab" aria-selected="false" data-tab="skills">技能</button>
           <button type="button" role="tab" aria-selected="false" data-tab="modules">模块 <span id="module-count">0/2</span></button>
+          <button type="button" role="tab" aria-selected="false" data-tab="core">炉心</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="exploration">探索</button>
+          <button type="button" role="tab" aria-selected="false" data-tab="collection">图鉴</button>
         </div>
         <section id="upgrade-list" class="card-list" role="tabpanel"></section>
         <section id="skill-list" class="card-list" role="tabpanel" hidden></section>
         <section id="module-list" class="card-list" role="tabpanel" hidden></section>
+        <section id="core-list" class="card-list" role="tabpanel" hidden></section>
+        <section id="exploration-list" class="card-list" role="tabpanel" hidden></section>
+        <section id="collection-list" class="card-list" role="tabpanel" hidden></section>
       </aside>
     </main>
 

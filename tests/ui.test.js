@@ -62,6 +62,49 @@ test('mobile page exposes a fixed quick navigator for battle, build, and stats',
   assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?\.mobile-view-switcher\s*\{[^}]*position:\s*fixed/s);
 });
 
+test('post-MVP interface exposes permanent core progression controls', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
+
+  assert.match(html, /data-tab="core"/);
+  assert.match(html, /id="core-list"/);
+  assert.match(html, /id="auto-skills-toggle"/);
+  assert.match(html, /id="research-value"/);
+  assert.match(app, /data-tech=/);
+  assert.match(app, /data-challenge=/);
+});
+
+test('guardian decisions and persistent trials expose their next action clearly', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
+
+  assert.match(html, /id="guardian-decision"/);
+  assert.match(html, /id="law-choices"/);
+  assert.match(html, /id="continue-dive"[^>]*disabled/);
+  assert.match(app, /state\.run\.awaitingDecision/);
+  assert.match(app, /选择下一法则/);
+  assert.doesNotMatch(app, /RUN COMPLETE/);
+  assert.match(app, /连续完成/);
+});
+
+test('mobile guardian settlement stays inside the viewport with sticky actions', async () => {
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.decision-card\s*\{[^}]*max-height:[^;}]*100svh[^}]*overflow:\s*auto/s);
+  assert.match(css, /\.decision-actions\s*\{[^}]*position:\s*sticky/s);
+  assert.match(css, /@media\s*\(max-width:\s*720px\)[\s\S]*?\.guardian-decision\s*\{[^}]*position:\s*fixed/s);
+});
+
+test('battlefield exposes the active overdrive meter without adding a new panel', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(html, /id="overdrive-meter"/);
+  assert.match(html, /id="overdrive-fill"/);
+  assert.match(html, /id="overdrive-label"/);
+  assert.match(css, /\.overdrive-meter/);
+});
+
 test('touch controls prevent double-tap side effects and respect mobile safe areas', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const css = await readFile(new URL('../styles.css', import.meta.url), 'utf8');

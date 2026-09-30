@@ -133,6 +133,10 @@ h1, h2, h3, p { margin-top: 0; }
 .breakdown-row strong { color: var(--text); }
 .automation-card { margin-top: 24px; padding: 16px; border: 1px solid rgba(123,224,177,.24); border-radius: 14px; background: rgba(123,224,177,.05); }
 .automation-card strong { display: block; margin: 4px 0 14px; }
+.automation-card label + label, .preset-control { margin-top: 10px; }
+.automation-card select { width: 100%; margin-top: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #1b1623; }
+.preset-control { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.preset-control button { min-height: 38px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: #241d30; }
 .switch { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .82rem; }
 .switch input { position: absolute; opacity: 0; }
 .switch span { width: 36px; height: 20px; padding: 2px; border-radius: 99px; background: #302a39; transition: .2s; }
@@ -156,6 +160,13 @@ h1, h2, h3, p { margin-top: 0; }
 .target-reticle { position: absolute; inset: 30%; border: 1px dashed rgba(255,255,255,.28); border-radius: 50%; animation: spin 8s linear infinite; }
 .forge-visual.hit { animation: hit .18s ease-out; }
 .forge-visual.critical .forge-core { box-shadow: 0 0 65px var(--amber), inset 0 0 32px white; }
+.overdrive-meter { z-index: 1; width: min(320px, 82%); margin: -18px 0 18px; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
+.overdrive-meter > div:first-child { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.overdrive-meter strong { color: var(--violet-bright); }
+.overdrive-track { height: 5px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.08); }
+.overdrive-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--amber)); box-shadow: 0 0 14px var(--violet); transition: width .16s ease-out; }
+.overdrive-meter.active strong { color: var(--amber); }
+.overdrive-meter.active .overdrive-track span { animation: overdrive-glow .5s ease-in-out infinite alternate; }
 
 .enemy-readout { width: min(520px, 92%); margin-top: -20px; }
 .enemy-readout h1 { margin: 5px 0 10px; font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: .08em; }
@@ -164,6 +175,7 @@ h1, h2, h3, p { margin-top: 0; }
 .health-track { height: 8px; }
 .boss-rule { margin: 12px 0 0; color: var(--amber); font-size: .82rem; }
 .combat-callout { min-height: 24px; margin-top: 18px; color: var(--violet-bright); font-size: .82rem; }
+.automation-goal { color: var(--muted); font-size: .74rem; }
 .skill-dock { display: flex; justify-content: center; gap: 10px; min-height: 44px; margin-top: 14px; }
 .skill-dock button { min-width: 92px; padding: 9px 12px; border: 1px solid var(--line-bright); border-radius: 10px; background: rgba(168,133,255,.09); font-size: .78rem; }
 
@@ -185,6 +197,7 @@ h1, h2, h3, p { margin-top: 0; }
 .action-card button { min-width: 82px; padding: 9px 11px; border: 1px solid var(--line-bright); border-radius: 9px; background: #241d30; cursor: pointer; font-size: .75rem; }
 .action-card button:disabled, .skill-dock button:disabled { opacity: .42; cursor: not-allowed; }
 .empty-state { padding: 44px 16px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); text-align: center; font-size: .84rem; line-height: 1.6; }
+.progression-divider { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
 
 .lower-deck { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(360px, 1.2fr) minmax(260px, 1fr); border-top: 1px solid var(--line); background: rgba(12,10,16,.94); }
 .run-summary { display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; padding: 16px 28px; }
@@ -205,9 +218,44 @@ h1, h2, h3, p { margin-top: 0; }
 .copyright-notice strong { color: var(--danger); font-size: .78rem; letter-spacing: .04em; }
 .copyright-notice small { color: #77717f; }
 .mobile-view-switcher { display: none; }
+/* 战斗区祖先有独立层叠上下文；结算时隐藏外部导航，单纯调高浮层 z-index 不够。 */
+body:has(#guardian-decision:not([hidden])) .mobile-view-switcher { visibility: hidden; pointer-events: none; }
+
+/* 回归收益浮层不加入桌面网格行，避免挤掉固定高度的战斗区域。 */
+.return-summary { position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 35; display: flex; align-items: center; gap: 12px; width: min(640px, calc(100vw - 24px)); padding: 16px; border: 1px solid var(--amber); border-radius: 14px; background: #211925; box-shadow: 0 12px 40px #0009; }
+.return-summary span { display: block; margin-top: 6px; color: var(--muted); font-size: .8rem; }
+.return-summary button, .expedition-notice { min-height: 44px; padding: 10px 14px; border: 1px solid var(--amber); border-radius: 10px; background: #392b25; cursor: pointer; }
+.return-summary button { flex-shrink: 0; }
+.expedition-notice { margin-top: 8px; color: var(--amber); }
+.journey-goals { display: grid; gap: 10px; margin-block: 18px; }
+.journey-goals div { border-left: 2px solid var(--violet); padding-left: 10px; }
+.journey-goals span { display: block; color: var(--amber); font-size: .7rem; }
+.journey-goals strong { display: block; margin-top: 4px; font-size: .78rem; line-height: 1.5; font-weight: 500; }
+.action-card small { display: block; margin-top: 6px; color: var(--amber); font-size: .72rem; line-height: 1.45; }
+.progression-divider { grid-column: 1 / -1; }
+.forge-visual[data-region="gravity"] .forge-core { filter: hue-rotate(40deg); }
+.forge-visual[data-region="entropy"] .forge-core { filter: hue-rotate(280deg); }
+.decision-builds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+.decision-builds button { min-height: 44px; padding: 8px; border: 1px solid var(--line-bright); border-radius: 10px; background: #2b2140; font-size: .75rem; cursor: pointer; }
+.decision-builds button:disabled { border-color: var(--amber); color: var(--amber); cursor: default; }
 
 dialog { width: min(480px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--line-bright); border-radius: 20px; color: var(--text); background: #15111e; box-shadow: 0 30px 90px rgba(0,0,0,.75); }
 dialog::backdrop { background: rgba(4,3,7,.76); backdrop-filter: blur(6px); }
+/* 守卫选择必须覆盖移动端导航，不能让底部按钮遮住结算。 */
+.guardian-decision { position: absolute; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(5,4,8,.82); backdrop-filter: blur(10px); }
+.decision-card { width: min(720px, 100%); max-height: min(680px, calc(100svh - 32px)); padding: 24px; overflow: auto; border: 1px solid var(--line-bright); border-radius: 20px; background: #15111e; box-shadow: 0 24px 80px rgba(0,0,0,.65); }
+.decision-card h2 { margin: 8px 0 14px; }
+.decision-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; color: var(--muted); font-size: .8rem; }
+.decision-summary strong { display: block; margin-top: 4px; color: var(--text); }
+.law-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.law-card { min-height: 132px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.025); text-align: left; }
+.law-card[aria-checked="true"] { border-color: var(--amber); background: rgba(255,198,109,.09); box-shadow: 0 0 0 1px rgba(255,198,109,.2); }
+.law-card strong, .law-card span { display: block; }
+.law-card span { margin-top: 8px; color: var(--muted); font-size: .75rem; line-height: 1.45; }
+.law-card em { display: block; margin-top: 8px; color: var(--amber); font-size: .72rem; font-style: normal; }
+.decision-actions { position: sticky; bottom: -24px; display: flex; justify-content: flex-end; gap: 10px; margin: 18px -24px -24px; padding: 14px 24px; border-top: 1px solid var(--line); background: #15111e; }
+.decision-actions button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--line-bright); border-radius: 10px; color: var(--text); background: #2b2140; }
+.decision-actions button:disabled { opacity: .38; }
 .dialog-card { padding: 28px; }
 .dialog-card h2 { margin: 8px 0 12px; }
 .dialog-card p { color: var(--muted); font-size: .9rem; line-height: 1.6; }
@@ -220,6 +268,7 @@ dialog::backdrop { background: rgba(4,3,7,.76); backdrop-filter: blur(6px); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 50% { transform: rotate(45deg) scale(1.08); filter: brightness(1.2); } }
 @keyframes hit { 50% { transform: scale(.96); filter: brightness(1.7); } }
+@keyframes overdrive-glow { to { filter: brightness(1.6); box-shadow: 0 0 22px var(--amber); } }
 
 /* 只在真正支持悬停的设备上启用 hover，避免触屏点击后高亮粘住。 */
 @media (hover: hover) and (pointer: fine) {
@@ -265,6 +314,12 @@ dialog::backdrop { background: rgba(4,3,7,.76); backdrop-filter: blur(6px); }
   .mobile-view-switcher button { padding: 10px 8px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; }
   .mobile-view-switcher button[aria-current="true"] { color: var(--text); background: rgba(168,133,255,.2); }
   .switch { min-height: 44px; }
+  .guardian-decision { position: fixed; padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); }
+  .decision-card { max-height: 100%; padding: 16px; }
+  .decision-summary { grid-template-columns: repeat(3, 1fr); }
+  .law-choices { grid-template-columns: 1fr; }
+  .law-card { min-height: 0; }
+  .decision-actions { bottom: -16px; margin: 14px -16px -16px; padding: 12px 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
